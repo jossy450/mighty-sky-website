@@ -15,6 +15,13 @@
       "when": 1762600616099,
       "tag": "0001_gifted_prima",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1762604411500,
+      "tag": "0002_tearful_the_executioner",
+      "breakpoints": true
     }
   ]
 }

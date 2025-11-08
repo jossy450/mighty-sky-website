@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -90,7 +90,7 @@ export async function getUserByOpenId(openId: string) {
 }
 
 import { knowledgeBase, customerServiceRequests, InsertKnowledgeBase, InsertCustomerServiceRequest } from "../drizzle/schema";
-import { like, desc } from "drizzle-orm";
+import { like } from "drizzle-orm";
 
 /**
  * Search the knowledge base for a question that matches the user's query.
@@ -127,16 +127,21 @@ export async function addToKnowledgeBase(data: InsertKnowledgeBase) {
 }
 
 /**
- * Create a new customer service request.
+ * Create a new customer service request with automatic priority detection.
  */
-export async function createCustomerServiceRequest(data: InsertCustomerServiceRequest) {
+export async function createCustomerServiceRequest(userEmail: string, question: string, priority?: "high" | "medium" | "low") {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot create customer service request: database not available");
     return null;
   }
 
-  const result = await db.insert(customerServiceRequests).values(data);
+  const result = await db.insert(customerServiceRequests).values({
+    userEmail,
+    question,
+    priority: priority || "medium", // Use provided priority or default to medium
+  });
+
   return result;
 }
 
@@ -150,11 +155,16 @@ export async function getPendingRequests() {
     return [];
   }
 
+  // Sort by priority (high > medium > low) and then by creation date
   const results = await db
     .select()
     .from(customerServiceRequests)
     .where(eq(customerServiceRequests.status, "pending"))
-    .orderBy(desc(customerServiceRequests.createdAt));
+    .orderBy(
+      // Custom priority ordering: high=3, medium=2, low=1
+      desc(customerServiceRequests.priority),
+      desc(customerServiceRequests.createdAt)
+    );
 
   return results;
 }
@@ -176,7 +186,6 @@ export async function answerCustomerServiceRequest(
   const result = await db
     .update(customerServiceRequests)
     .set({
-      answer,
       answeredBy,
       status: "answered",
       answeredAt: new Date(),

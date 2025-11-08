@@ -61,4 +61,14 @@
 - [x] Add toast notifications when new requests are detected
 - [x] Track previously seen request IDs to avoid duplicate notifications
 - [x] Test real-time notification system
+- [x] Save checkpoint for deployment
+
+## Phase 11: Priority System for Customer Requests
+- [x] Add priority field (high/medium/low) to customer_service_requests table
+- [x] Push database schema changes
+- [x] Implement keyword detection logic for automatic priority assignment
+- [x] Update createCustomerServiceRequest to assign priority based on keywords
+- [x] Sort pending requests by priority in the dashboard
+- [x] Add visual priority badges (colored) to the UI
+- [x] Test priority system with various keywords
 - [ ] Save checkpoint for deployment

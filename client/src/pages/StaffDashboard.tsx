@@ -8,6 +8,16 @@ import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+
+// Helper function to get priority badge styling
+const getPriorityBadge = (priority: "high" | "medium" | "low") => {
+  const styles = {
+    high: "bg-red-100 text-red-800 border-red-200",
+    medium: "bg-yellow-100 text-yellow-800 border-yellow-200",
+    low: "bg-green-100 text-green-800 border-green-200",
+  };
+  return styles[priority];
+};
 import { toast } from "sonner";
 
 export default function StaffDashboard() {
@@ -212,11 +222,18 @@ export default function StaffDashboard() {
             {requests.map((request) => (
               <Card key={request.id}>
                 <CardHeader>
-                  <CardTitle className="text-lg">Request #{request.id}</CardTitle>
-                  <CardDescription>
-                    From: {request.userEmail} • Submitted:{" "}
-                    {new Date(request.createdAt).toLocaleString()}
-                  </CardDescription>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg">Request #{request.id}</CardTitle>
+                      <CardDescription>
+                        From: {request.userEmail} • Submitted:{" "}
+                        {new Date(request.createdAt).toLocaleString()}
+                      </CardDescription>
+                    </div>
+                    <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${getPriorityBadge(request.priority)}`}>
+                      {request.priority.toUpperCase()} PRIORITY
+                    </span>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>

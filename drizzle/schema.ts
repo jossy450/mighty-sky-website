@@ -46,11 +46,11 @@ export const customerServiceRequests = mysqlTable("customer_service_requests", {
   id: int("id").autoincrement().primaryKey(),
   userEmail: varchar("userEmail", { length: 320 }).notNull(),
   question: text("question").notNull(),
-  answer: text("answer"),
+  priority: mysqlEnum("priority", ["high", "medium", "low"]).default("medium").notNull(),
   status: mysqlEnum("status", ["pending", "answered"]).default("pending").notNull(),
-  answeredBy: varchar("answeredBy", { length: 255 }), // Staff member who answered
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  answeredBy: varchar("answeredBy", { length: 255 }),
   answeredAt: timestamp("answeredAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
 export type CustomerServiceRequest = typeof customerServiceRequests.$inferSelect;

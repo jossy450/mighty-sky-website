@@ -12,6 +12,7 @@ import {
   answerCustomerServiceRequest,
   getAnsweredRequests,
 } from "./db";
+import { detectPriority } from "./priorityDetection";
 import { notifyStaffOfNewRequest, sendAnswerToCustomer } from "./emailService";
 
 export const appRouter = router({
@@ -54,10 +55,13 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ input }) => {
-        const result = await createCustomerServiceRequest({
-          userEmail: input.userEmail,
-          question: input.question,
-        });
+        // Detect priority based on keywords in the question
+        const priority = detectPriority(input.question);
+        const result = await createCustomerServiceRequest(
+          input.userEmail,
+          input.question,
+          priority
+        );
 
         // Send email notification to staff (use a timestamp as requestId fallback if insertId is unavailable)
         const requestId = Date.now();
