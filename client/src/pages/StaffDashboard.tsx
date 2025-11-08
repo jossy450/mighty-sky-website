@@ -21,6 +21,19 @@ export default function StaffDashboard() {
     { enabled: isAuthenticated }
   );
 
+  // Fetch answered requests for audit log
+  const { data: answeredRequests, isLoading: answeredLoading } = trpc.chatbot.getAnsweredRequests.useQuery(
+    undefined,
+    { enabled: isAuthenticated && user?.role === "admin" }
+  );
+
+  // Calculate staff performance metrics
+  const staffMetrics = answeredRequests?.reduce((acc, req) => {
+    const staffName = req.answeredBy || "Unknown";
+    acc[staffName] = (acc[staffName] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>) || {};
+
   // Mutation to answer a request
   const answerMutation = trpc.chatbot.answerRequest.useMutation({
     onSuccess: (data) => {
@@ -103,6 +116,67 @@ export default function StaffDashboard() {
           <p className="text-gray-600 mt-1">Manage customer service requests from the chatbot</p>
           <p className="text-sm text-gray-500 mt-2">Logged in as: {user?.name || user?.email}</p>
         </div>
+
+        {/* Staff Performance Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium">Total Answered</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{answeredRequests?.length || 0}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium">Pending Requests</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{requests?.length || 0}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium">Active Staff</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{Object.keys(staffMetrics).length}</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Activity History */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Latest answered customer service requests</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {answeredLoading ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="animate-spin h-6 w-6" />
+              </div>
+            ) : answeredRequests && answeredRequests.length > 0 ? (
+              <div className="space-y-3">
+                {answeredRequests.slice(0, 5).map((req) => (
+                  <div key={req.id} className="flex items-start justify-between p-3 bg-gray-50 rounded-md">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{req.question}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Answered by {req.answeredBy} • {new Date(req.answeredAt!).toLocaleString()}
+                      </p>
+                    </div>
+                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Answered</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 text-center py-6">No answered requests yet</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <h2 className="text-2xl font-bold mb-4">Pending Requests</h2>
 
         {requestsLoading ? (
           <div className="flex items-center justify-center py-12">

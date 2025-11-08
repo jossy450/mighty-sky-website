@@ -47,4 +47,11 @@
 - [x] Add admin-only access check to StaffDashboard component
 - [x] Display appropriate error message for non-admin users
 - [x] Test RBAC with admin and regular user accounts
+- [x] Save checkpoint for deployment
+
+## Phase 9: Audit Log Implementation
+- [x] Create tRPC endpoint to fetch answered requests with timestamps and staff info
+- [x] Add activity history section to staff dashboard
+- [x] Display staff performance metrics (requests answered per admin)
+- [x] Test audit log display with multiple answered requests
 - [ ] Save checkpoint for deployment

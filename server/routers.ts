@@ -10,6 +10,7 @@ import {
   getCustomerServiceRequestById,
   addToKnowledgeBase,
   answerCustomerServiceRequest,
+  getAnsweredRequests,
 } from "./db";
 import { notifyStaffOfNewRequest, sendAnswerToCustomer } from "./emailService";
 
@@ -70,6 +71,14 @@ export const appRouter = router({
      */
     getPendingRequests: protectedProcedure.query(async () => {
       const requests = await getPendingRequests();
+      return requests;
+    }),
+
+    /**
+     * Get all answered customer service requests (for audit log).
+     */
+    getAnsweredRequests: protectedProcedure.query(async () => {
+      const requests = await getAnsweredRequests();
       return requests;
     }),
 

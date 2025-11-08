@@ -204,3 +204,22 @@ export async function getCustomerServiceRequestById(requestId: number) {
 
   return results.length > 0 ? results[0] : null;
 }
+
+/**
+ * Get all answered customer service requests for audit log.
+ */
+export async function getAnsweredRequests() {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get answered requests: database not available");
+    return [];
+  }
+
+  const results = await db
+    .select()
+    .from(customerServiceRequests)
+    .where(eq(customerServiceRequests.status, "answered"))
+    .orderBy(desc(customerServiceRequests.answeredAt));
+
+  return results;
+}
