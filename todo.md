@@ -21,16 +21,24 @@
 - [x] Implement WhatsApp group notification when chatbot cannot answer
 - [x] Implement logic to mark request as "done" when staff responds
 - [x] Implement email response to customer when answer is available
-- [ ] Test the full customer service workflow
+- [x] Test the full customer service workflow
 
 ## Phase 5: Frontend Integration
 - [x] Update existing Vite frontend chatbot to call backend API
 - [x] Add email collection form before chatbot interaction
 - [x] Update chatbot UI to show loading states and responses
-- [ ] Test frontend-backend integration
+- [x] Test frontend-backend integration
 
 ## Phase 6: Testing & Deployment
-- [ ] End-to-end testing of the full workflow
-- [ ] Create checkpoint for deployment
-- [ ] Document deployment instructions for both frontend and backend
-- [ ] Provide user guide for managing the chatbot system
+- [x] End-to-end testing of the full workflow
+- [x] Create checkpoint for deployment
+- [x] Document deployment instructions for both frontend and backend
+- [x] Provide user guide for managing the chatbot system
+
+## Phase 7: Staff Dashboard
+- [x] Create StaffDashboard page component with authentication
+- [x] Implement pending requests table with customer email and question
+- [x] Add answer form for each request
+- [x] Integrate with existing tRPC endpoints for fetching and answering requests
+- [x] Test the full dashboard workflow
+- [ ] Save checkpoint for deployment

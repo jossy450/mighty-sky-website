@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { Streamdown } from 'streamdown';
+import { Link } from "wouter";
 
 /**
  * All content in this page are only for example, replace with your own feature implementation
@@ -27,6 +28,14 @@ export default function Home() {
         {/* Example: Streamdown for markdown rendering */}
         <Streamdown>Any **markdown** content</Streamdown>
         <Button variant="default">Example Button</Button>
+        
+        {isAuthenticated && (
+          <div className="mt-4">
+            <Button asChild variant="outline">
+              <Link href="/staff">Go to Staff Dashboard</Link>
+            </Button>
+          </div>
+        )}
       </main>
     </div>
   );
