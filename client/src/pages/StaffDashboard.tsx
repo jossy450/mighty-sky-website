@@ -7,19 +7,44 @@ import { Textarea } from "@/components/ui/textarea";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 export default function StaffDashboard() {
   const { user, loading, isAuthenticated } = useAuth();
   const [answeringRequestId, setAnsweringRequestId] = useState<number | null>(null);
   const [answerText, setAnswerText] = useState("");
+  const previousRequestIds = useRef<Set<number>>(new Set());
 
-  // Fetch pending requests
+  // Fetch pending requests with polling enabled
   const { data: requests, isLoading: requestsLoading, refetch } = trpc.chatbot.getPendingRequests.useQuery(
     undefined,
-    { enabled: isAuthenticated }
+    { 
+      enabled: isAuthenticated,
+      refetchInterval: 10000, // Poll every 10 seconds
+    }
   );
+
+  // Detect new requests and show toast notifications
+  useEffect(() => {
+    if (!requests || !isAuthenticated || user?.role !== "admin") return;
+
+    const currentRequestIds = new Set(requests.map(r => r.id));
+    const newRequests = requests.filter(r => !previousRequestIds.current.has(r.id));
+
+    // Show toast for each new request (but not on initial load)
+    if (previousRequestIds.current.size > 0 && newRequests.length > 0) {
+      newRequests.forEach(req => {
+        toast.info(`New request from ${req.userEmail}`, {
+          description: req.question.substring(0, 100) + (req.question.length > 100 ? "..." : ""),
+          duration: 5000,
+        });
+      });
+    }
+
+    // Update the tracked request IDs
+    previousRequestIds.current = currentRequestIds;
+  }, [requests, isAuthenticated, user?.role]);
 
   // Fetch answered requests for audit log
   const { data: answeredRequests, isLoading: answeredLoading } = trpc.chatbot.getAnsweredRequests.useQuery(

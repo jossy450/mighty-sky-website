@@ -54,4 +54,11 @@
 - [x] Add activity history section to staff dashboard
 - [x] Display staff performance metrics (requests answered per admin)
 - [x] Test audit log display with multiple answered requests
+- [x] Save checkpoint for deployment
+
+## Phase 10: Real-time Notifications
+- [x] Implement polling logic to check for new customer requests every 10 seconds
+- [x] Add toast notifications when new requests are detected
+- [x] Track previously seen request IDs to avoid duplicate notifications
+- [x] Test real-time notification system
 - [ ] Save checkpoint for deployment
