@@ -1,6 +1,6 @@
 import { eq, desc, sql, like, and, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, satisfactionSurveys } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -435,4 +435,74 @@ export async function createKnowledgeBasePair(question: string, answer: string) 
     .values({ question, answer });
 
   return result;
+}
+
+
+// ===== Satisfaction Survey Functions =====
+
+export async function createSatisfactionSurvey(data: {
+  customerEmail: string;
+  rating: number;
+  feedback?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.insert(satisfactionSurveys).values({
+    customerEmail: data.customerEmail,
+    rating: data.rating,
+    feedback: data.feedback || null,
+  });
+}
+
+export async function getSatisfactionSurveyAnalytics(params?: {
+  startDate?: Date;
+  endDate?: Date;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  let query = db.select().from(satisfactionSurveys);
+
+  if (params?.startDate || params?.endDate) {
+    const conditions = [];
+    if (params.startDate) {
+      conditions.push(gte(satisfactionSurveys.createdAt, params.startDate));
+    }
+    if (params.endDate) {
+      conditions.push(lte(satisfactionSurveys.createdAt, params.endDate));
+    }
+    query = query.where(and(...conditions)) as any;
+  }
+
+  const surveys = await query;
+
+  // Calculate analytics
+  const totalSurveys = surveys.length;
+  const averageRating = totalSurveys > 0
+    ? surveys.reduce((sum, s) => sum + s.rating, 0) / totalSurveys
+    : 0;
+
+  const ratingDistribution = {
+    1: surveys.filter(s => s.rating === 1).length,
+    2: surveys.filter(s => s.rating === 2).length,
+    3: surveys.filter(s => s.rating === 3).length,
+    4: surveys.filter(s => s.rating === 4).length,
+    5: surveys.filter(s => s.rating === 5).length,
+  };
+
+  return {
+    totalSurveys,
+    averageRating: Math.round(averageRating * 10) / 10,
+    ratingDistribution,
+    recentFeedback: surveys
+      .filter(s => s.feedback)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, 10)
+      .map(s => ({
+        rating: s.rating,
+        feedback: s.feedback,
+        createdAt: s.createdAt,
+      })),
+  };
 }

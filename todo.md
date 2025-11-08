@@ -115,4 +115,23 @@
 - [x] Add create new Q&A pair form
 - [x] Add admin-only access control
 - [x] Test full CRUD workflow
+- [x] Save checkpoint for deployment
+
+## Phase 16: Deployment and Frontend Integration
+- [x] Verify backend is ready for deployment
+- [x] Create final backend checkpoint
+- [x] Update frontend chatbot to use backend API
+- [x] Configure environment variable for backend URL
+- [x] Build final integrated frontend
+- [x] Test full end-to-end chatbot workflow
+- [x] Provide deployment instructions for both backend and frontend
+
+## Phase 17: User Satisfaction Survey
+- [x] Add satisfaction_surveys table to database schema
+- [x] Push database schema changes
+- [x] Create backend API endpoint for submitting survey responses
+- [x] Create backend API endpoint for fetching survey analytics
+- [x] Implement survey modal in frontend chatbot widget
+- [x] Add survey analytics section to Analytics dashboard
+- [x] Test survey submission and analytics display
 - [ ] Save checkpoint for deployment

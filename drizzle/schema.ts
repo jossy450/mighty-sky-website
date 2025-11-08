@@ -25,6 +25,17 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
+export const satisfactionSurveys = mysqlTable("satisfaction_surveys", {
+  id: int("id").autoincrement().primaryKey(),
+  customerEmail: varchar("customerEmail", { length: 320 }).notNull(),
+  rating: int("rating").notNull(), // 1-5 stars
+  feedback: text("feedback"), // Optional text feedback
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SatisfactionSurvey = typeof satisfactionSurveys.$inferSelect;
+export type InsertSatisfactionSurvey = typeof satisfactionSurveys.$inferInsert;
+
 /**
  * Knowledge Base table for storing Q&A pairs that the chatbot learns.
  */

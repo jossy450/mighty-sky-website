@@ -41,6 +41,11 @@ export default function Analytics() {
     { enabled: isAuthenticated && user?.role === "admin" }
   );
 
+  const { data: surveyData, isLoading: surveyLoading } = trpc.survey.analytics.useQuery(
+    dateRange,
+    { enabled: isAuthenticated && user?.role === "admin" }
+  );
+
   // Helper function to format milliseconds to human-readable time
   const formatTime = (ms: number) => {
     const hours = Math.floor(ms / (1000 * 60 * 60));
@@ -107,7 +112,7 @@ export default function Analytics() {
     );
   }
 
-  const isLoading = responseTimeLoading || staffPerformanceLoading || priorityDistributionLoading;
+  const isLoading = responseTimeLoading || staffPerformanceLoading || priorityDistributionLoading || surveyLoading;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -261,6 +266,116 @@ export default function Analytics() {
                 </p>
               </CardContent>
             </Card>
+
+            {/* Customer Satisfaction Surveys */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Customer Satisfaction Surveys
+              </h2>
+              {surveyData ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Total Surveys</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-4xl font-bold">{surveyData.totalSurveys}</div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Average Rating</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-4xl font-bold">{surveyData.averageRating} / 5.0</div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Satisfaction Rate</CardTitle>
+                        <CardDescription>4-5 star ratings</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-4xl font-bold">
+                          {surveyData.totalSurveys > 0
+                            ? Math.round(
+                                ((surveyData.ratingDistribution[4] + surveyData.ratingDistribution[5]) /
+                                  surveyData.totalSurveys) *
+                                  100
+                              )
+                            : 0}
+                          %
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Rating Distribution</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {[5, 4, 3, 2, 1].map((rating) => (
+                          <div key={rating} className="flex items-center gap-3">
+                            <span className="w-20 text-sm font-medium">{rating} stars</span>
+                            <div className="flex-1 bg-gray-200 rounded-full h-8 overflow-hidden">
+                              <div
+                                className="bg-blue-500 h-full flex items-center justify-end pr-2"
+                                style={{
+                                  width:
+                                    surveyData.totalSurveys > 0
+                                      ? `${(surveyData.ratingDistribution[rating as 1 | 2 | 3 | 4 | 5] / surveyData.totalSurveys) * 100}%`
+                                      : "0%",
+                                }}
+                              >
+                                {surveyData.ratingDistribution[rating as 1 | 2 | 3 | 4 | 5] > 0 && (
+                                  <span className="text-xs text-white font-medium">
+                                    {surveyData.ratingDistribution[rating as 1 | 2 | 3 | 4 | 5]}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <span className="w-16 text-sm text-right">{surveyData.ratingDistribution[rating as 1 | 2 | 3 | 4 | 5]}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {surveyData.recentFeedback.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Recent Feedback</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {surveyData.recentFeedback.map((item, index) => (
+                            <div key={index} className="p-4 border rounded-lg bg-gray-50">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-semibold">{item.rating} / 5 stars</span>
+                                <span className="text-xs text-gray-500">
+                                  {new Date(item.createdAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-700">{item.feedback}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              ) : (
+                <Card>
+                  <CardContent className="p-8 text-center text-gray-500">
+                    No survey data available yet. Customers will see a satisfaction survey after chatbot conversations.
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </>
         )}
       </div>

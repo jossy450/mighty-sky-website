@@ -18,6 +18,8 @@ import {
   updateKnowledgeBasePair,
   deleteKnowledgeBasePair,
   createKnowledgeBasePair,
+  createSatisfactionSurvey,
+  getSatisfactionSurveyAnalytics,
 } from "./db";
 import { detectPriority } from "./priorityDetection";
 import { notifyStaffOfNewRequest, sendAnswerToCustomer } from "./emailService";
@@ -184,6 +186,38 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const result = await createKnowledgeBasePair(input.question, input.answer);
         return { success: !!result };
+      }),
+  }),
+  survey: router({
+    submit: publicProcedure
+      .input(
+        z.object({
+          customerEmail: z.string().email(),
+          rating: z.number().min(1).max(5),
+          feedback: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        await createSatisfactionSurvey(input);
+        return { success: true };
+      }),
+    analytics: protectedProcedure
+      .input(
+        z
+          .object({
+            startDate: z.string().optional(),
+            endDate: z.string().optional(),
+          })
+          .optional()
+      )
+      .query(async ({ input }) => {
+        const params = input
+          ? {
+              startDate: input.startDate ? new Date(input.startDate) : undefined,
+              endDate: input.endDate ? new Date(input.endDate) : undefined,
+            }
+          : undefined;
+        return await getSatisfactionSurveyAnalytics(params);
       }),
   }),
 
