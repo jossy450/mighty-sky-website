@@ -376,3 +376,63 @@ export async function getPriorityDistribution(startDate?: string, endDate?: stri
     { priority: "low", count: distribution.low },
   ];
 }
+
+
+// Knowledge Base Management Functions
+export async function getAllKnowledgeBasePairs() {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get knowledge base pairs: database not available");
+    return [];
+  }
+
+  const results = await db
+    .select()
+    .from(knowledgeBase)
+    .orderBy(desc(knowledgeBase.createdAt));
+
+  return results;
+}
+
+export async function updateKnowledgeBasePair(id: number, question: string, answer: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update knowledge base pair: database not available");
+    return false;
+  }
+
+  await db
+    .update(knowledgeBase)
+    .set({ question, answer })
+    .where(eq(knowledgeBase.id, id));
+
+  return true;
+}
+
+export async function deleteKnowledgeBasePair(id: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot delete knowledge base pair: database not available");
+    return false;
+  }
+
+  await db
+    .delete(knowledgeBase)
+    .where(eq(knowledgeBase.id, id));
+
+  return true;
+}
+
+export async function createKnowledgeBasePair(question: string, answer: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create knowledge base pair: database not available");
+    return null;
+  }
+
+  const result = await db
+    .insert(knowledgeBase)
+    .values({ question, answer });
+
+  return result;
+}

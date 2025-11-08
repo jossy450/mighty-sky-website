@@ -38,6 +38,9 @@ export default function Home() {
           <Button asChild variant="outline">
             <a href="/analytics">View Analytics</a>
           </Button>
+          <Button asChild variant="outline">
+            <a href="/knowledge">Manage Knowledge Base</a>
+          </Button>
         </div>
           </div>
         )}

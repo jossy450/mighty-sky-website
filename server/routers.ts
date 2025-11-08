@@ -14,6 +14,10 @@ import {
   getAverageResponseTimeByPriority,
   getStaffPerformanceMetrics,
   getPriorityDistribution,
+  getAllKnowledgeBasePairs,
+  updateKnowledgeBasePair,
+  deleteKnowledgeBasePair,
+  createKnowledgeBasePair,
 } from "./db";
 import { detectPriority } from "./priorityDetection";
 import { notifyStaffOfNewRequest, sendAnswerToCustomer } from "./emailService";
@@ -159,6 +163,29 @@ export const appRouter = router({
       }),
   }),
 
+  knowledgeBase: router({
+    getAll: protectedProcedure.query(async () => {
+      return await getAllKnowledgeBasePairs();
+    }),
+    update: protectedProcedure
+      .input(z.object({ id: z.number(), question: z.string(), answer: z.string() }))
+      .mutation(async ({ input }) => {
+        const success = await updateKnowledgeBasePair(input.id, input.question, input.answer);
+        return { success };
+      }),
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const success = await deleteKnowledgeBasePair(input.id);
+        return { success };
+      }),
+    create: protectedProcedure
+      .input(z.object({ question: z.string(), answer: z.string() }))
+      .mutation(async ({ input }) => {
+        const result = await createKnowledgeBasePair(input.question, input.answer);
+        return { success: !!result };
+      }),
+  }),
 
 });
 
